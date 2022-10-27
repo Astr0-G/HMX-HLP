@@ -8,7 +8,7 @@ import "./libraries/token/IERC20.sol";
 contract HMX is IERC20 {
     using SafeMath for uint256;
 
-    string public constant name = "Gambit";
+    string public constant name = "HMX";
     string public constant symbol = "HMX";
     uint8 public constant decimals = 18;
 
