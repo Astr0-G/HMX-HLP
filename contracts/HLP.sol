@@ -15,7 +15,7 @@ contract HLP is IERC20 {
     uint256 public override totalSupply;
     address public gov;
 
-    bool public hasActiveMigration;
+    bool public maintenancestate = false;
     uint256 public migrationTime;
 
     mapping(address => uint256) public balances;
@@ -23,13 +23,13 @@ contract HLP is IERC20 {
 
     mapping(address => bool) public admins;
 
-    // only checked when hasActiveMigration is true
+    // only checked when maintenancestate is true
     // this can be used to block the AMM pair as a recipient
     // and protect liquidity providers during a migration
     // by disabling the selling of HLP
     mapping(address => bool) public blockedRecipients;
 
-    // only checked when hasActiveMigration is true
+    // only checked when maintenancestate is true
     // this can be used for:
     // - only allowing tokens to be transferred by the distribution contract
     // during the initial distribution phase, this would prevent token buyers
@@ -54,20 +54,8 @@ contract HLP is IERC20 {
         _mint(msg.sender, _initialSupply);
     }
 
-    
-
-    function setNextMigrationTime(uint256 _migrationTime) external onlyGov {
-        require(_migrationTime > migrationTime, "HLP: invalid _migrationTime");
-        migrationTime = _migrationTime;
-    }
-
-    function beginMigration() external onlyAdmin {
-        require(block.timestamp > migrationTime, "HLP: migrationTime not yet passed");
-        hasActiveMigration = true;
-    }
-
-    function endMigration() external onlyAdmin {
-        hasActiveMigration = false;
+    function maintenance() external onlyAdmin {
+        maintenancestate = !maintenancestate;
     }
 
     function addBlockedRecipient(address _recipient) external onlyGov {
@@ -95,20 +83,38 @@ contract HLP is IERC20 {
         IERC20(_token).transfer(_account, _amount);
     }
 
-    function balanceOf(address _account) external view override returns (uint256) {
+    function balanceOf(address _account)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return balances[_account];
     }
 
-    function transfer(address _recipient, uint256 _amount) external override returns (bool) {
+    function transfer(address _recipient, uint256 _amount)
+        external
+        override
+        returns (bool)
+    {
         _transfer(msg.sender, _recipient, _amount);
         return true;
     }
 
-    function allowance(address _owner, address _spender) external view override returns (uint256) {
+    function allowance(address _owner, address _spender)
+        external
+        view
+        override
+        returns (uint256)
+    {
         return allowances[_owner][_spender];
     }
 
-    function approve(address _spender, uint256 _amount) external override returns (bool) {
+    function approve(address _spender, uint256 _amount)
+        external
+        override
+        returns (bool)
+    {
         _approve(msg.sender, _spender, _amount);
         return true;
     }
@@ -135,12 +141,15 @@ contract HLP is IERC20 {
         require(_sender != address(0), "HLP: transfer from the zero address");
         require(_recipient != address(0), "HLP: transfer to the zero address");
 
-        if (hasActiveMigration) {
+        if (maintenancestate) {
             require(allowedMsgSenders[msg.sender], "HLP: forbidden msg.sender");
             require(!blockedRecipients[_recipient], "HLP: forbidden recipient");
         }
 
-        balances[_sender] = balances[_sender].sub(_amount, "HLP: transfer amount exceeds balance");
+        balances[_sender] = balances[_sender].sub(
+            _amount,
+            "HLP: transfer amount exceeds balance"
+        );
         balances[_recipient] = balances[_recipient].add(_amount);
 
         emit Transfer(_sender, _recipient, _amount);

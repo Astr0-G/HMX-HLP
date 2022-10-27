@@ -7,14 +7,14 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
     log("-----------------")
-    if (developmentChains.includes(network.name)) {
-        const ethUsdAggregator = await deployments.get("MockV3Aggregator")
-        ethUsdPriceAddress = ethUsdAggregator.address
-    } else {
-        ethUsdPriceAddress = networkConfig[chainId]["ethUsdPriceFeed"]
-    }
-    const arguments = [ethUsdPriceAddress]
-    const SignetControllor = await deploy("SignetControllor", {
+    // if (developmentChains.includes(network.name)) {
+    //     const ethUsdAggregator = await deployments.get("MockV3Aggregator")
+    //     ethUsdPriceAddress = ethUsdAggregator.address
+    // } else {
+    //     ethUsdPriceAddress = networkConfig[chainId]["ethUsdPriceFeed"]
+    // }
+    const arguments = []
+    const RewardRouterV2 = await deploy("RewardRouterV2", {
         from: deployer,
         args: arguments,
         log: true,
@@ -23,7 +23,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("verifying...")
-        await verify(SignetControllor.address, arguments)
+        await verify(RewardRouterV2.address, arguments)
     }
     log("-----------------")
 }

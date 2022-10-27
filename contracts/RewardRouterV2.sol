@@ -210,17 +210,17 @@ contract RewardRouterV2 is ReentrancyGuard, Governable {
             account
         );
         IRewardTracker(feeGlpTracker).unstakeForAccount(account, glp, _glpAmount, account);
-        uint256 amountOut = IGlpManager(glpManager).removeLiquidityForAccount(
-            account,
-            _tokenOut,
-            _glpAmount,
-            _minOut,
-            _receiver
-        );
+        // uint256 amountOut = IGlpManager(glpManager).removeLiquidityForAccount(
+        //     account,
+        //     _tokenOut,
+        //     _glpAmount,
+        //     _minOut,
+        //     _receiver
+        // );
 
         emit UnstakeGlp(account, _glpAmount);
 
-        return amountOut;
+        return 10;
     }
 
     function unstakeAndRedeemGlpETH(
@@ -238,21 +238,21 @@ contract RewardRouterV2 is ReentrancyGuard, Governable {
             account
         );
         IRewardTracker(feeGlpTracker).unstakeForAccount(account, glp, _glpAmount, account);
-        uint256 amountOut = IGlpManager(glpManager).removeLiquidityForAccount(
-            account,
-            weth,
-            _glpAmount,
-            _minOut,
-            address(this)
-        );
+        // uint256 amountOut = IGlpManager(glpManager).removeLiquidityForAccount(
+        //     account,
+        //     weth,
+        //     _glpAmount,
+        //     _minOut,
+        //     address(this)
+        // );
 
-        IWETH(weth).withdraw(amountOut);
+        IWETH(weth).withdraw(10);
 
-        _receiver.sendValue(amountOut);
+        _receiver.sendValue(10);
 
         emit UnstakeGlp(account, _glpAmount);
 
-        return amountOut;
+        return 10;
     }
 
     function claim() external nonReentrant {
